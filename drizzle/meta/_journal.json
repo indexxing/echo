@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1753229274890,
+      "tag": "0000_brainy_husk",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1753232035287,
+      "tag": "0001_curved_tyrannus",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1753682242260,
+      "tag": "0002_green_millenium_guard",
+      "breakpoints": true
+    }
+  ]
+}
