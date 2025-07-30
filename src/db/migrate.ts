@@ -1,8 +1,8 @@
+import { memory_block_entries, memory_blocks } from "./schema";
 import { migrate } from "drizzle-orm/bun-sqlite/migrator";
 import { drizzle } from "drizzle-orm/bun-sqlite";
 import { Database } from "bun:sqlite";
 import { env } from "../env";
-import { memory_block_entries, memory_blocks } from "./schema";
 
 const sqlite = new Database(env.DB_PATH);
 const db = drizzle(sqlite);

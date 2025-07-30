@@ -1,13 +1,14 @@
+import { exceedsGraphemes, multipartResponse } from "../utils/thread";
 import { AtUri } from "@atproto/syntax";
 import { Type } from "@google/genai";
 import { env } from "../env";
 import bot from "../bot";
 import z from "zod";
-import { exceedsGraphemes, multipartResponse } from "../utils/thread";
 
 export const definition = {
   name: "create_post",
-  description: "Creates a new Bluesky post/thread and returns the URL.",
+  description:
+    "Creates a new Bluesky post/thread and returns the URL. Only do this if the user specifically requests a new thread.",
   parameters: {
     type: Type.OBJECT,
     properties: {

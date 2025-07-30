@@ -1,9 +1,9 @@
-import { Type } from "@google/genai";
-import bot from "../bot";
-import z from "zod";
-import db from "../db";
 import { muted_threads } from "../db/schema";
 import { AtUri } from "@atproto/syntax";
+import { Type } from "@google/genai";
+import bot from "../bot";
+import db from "../db";
+import z from "zod";
 
 export const definition = {
   name: "mute_thread",

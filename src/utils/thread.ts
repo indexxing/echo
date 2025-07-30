@@ -1,10 +1,10 @@
 import { graphemeLength, Post, PostReference } from "@skyware/bot";
+import { muted_threads } from "../db/schema";
+import * as c from "../constants";
+import { eq } from "drizzle-orm";
 import * as yaml from "js-yaml";
 import bot from "../bot";
-import { muted_threads } from "../db/schema";
-import { eq } from "drizzle-orm";
 import db from "../db";
-import * as c from "../constants";
 
 /*
   Traversal

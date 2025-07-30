@@ -1,7 +1,7 @@
-import * as create_blog_post from "./tools/create_blog_post";
-import * as mute_thread from "./tools/mute_thread";
-import * as create_post from "./tools/create_post";
 import type { FunctionCall, GenerateContentConfig } from "@google/genai";
+import * as create_blog_post from "./create_blog_post";
+import * as create_post from "./create_post";
+import * as mute_thread from "./mute_thread";
 import type { infer as z_infer } from "zod";
 
 const validation_mappings = {

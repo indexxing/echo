@@ -1,14 +1,13 @@
-import { interactions } from "../db/schema";
-import { type Post } from "@skyware/bot";
+import { isAuthorizedUser, logInteraction } from "../utils/interactions";
 import * as threadUtils from "../utils/thread";
 import modelPrompt from "../model/prompt.txt";
 import { GoogleGenAI } from "@google/genai";
+import { interactions } from "../db/schema";
+import { type Post } from "@skyware/bot";
+import * as c from "../constants";
 import * as tools from "../tools";
 import consola from "consola";
 import { env } from "../env";
-import db from "../db";
-import * as c from "../constants";
-import { isAuthorizedUser, logInteraction } from "../utils/interactions";
 
 const logger = consola.withTag("Post Handler");
 

@@ -3,6 +3,7 @@ export const TAGS = [
     "bot",
     "genai",
     "echo",
+    "echoaibot",
 ];
 
 export const UNAUTHORIZED_MESSAGE =
