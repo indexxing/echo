@@ -7,38 +7,12 @@ import * as tools from "../tools";
 import consola from "consola";
 import { env } from "../env";
 import db from "../db";
-import * as yaml from "js-yaml";
+import * as c from "../constants";
+import { isAuthorizedUser, logInteraction } from "../utils/interactions";
 
 const logger = consola.withTag("Post Handler");
 
-const AUTHORIZED_USERS = [
-    "did:plc:sfjxpxxyvewb2zlxwoz2vduw",
-    "did:plc:wfa54mpcbngzazwne3piz7fp",
-] as const;
-
-const UNAUTHORIZED_MESSAGE =
-    "hey there! thanks for the heads-up! i'm still under development, so i'm not quite ready to chat with everyone just yet. my admin, @indexx.dev, is working on getting me up to speed! 🤖";
-
-const SUPPORTED_FUNCTION_CALLS = [
-    "create_post",
-    "create_blog_post",
-    "mute_thread",
-] as const;
-
-type SupportedFunctionCall = typeof SUPPORTED_FUNCTION_CALLS[number];
-
-async function isAuthorizedUser(did: string): Promise<boolean> {
-    return AUTHORIZED_USERS.includes(did as any);
-}
-
-async function logInteraction(post: Post): Promise<void> {
-    await db.insert(interactions).values([{
-        uri: post.uri,
-        did: post.author.did,
-    }]);
-
-    logger.success(`Logged interaction, initiated by @${post.author.handle}`);
-}
+type SupportedFunctionCall = typeof c.SUPPORTED_FUNCTION_CALLS[number];
 
 async function generateAIResponse(parsedThread: string) {
     const genai = new GoogleGenAI({
@@ -56,7 +30,17 @@ async function generateAIResponse(parsedThread: string) {
         {
             role: "model" as const,
             parts: [
-                { text: modelPrompt },
+                {
+                    /*
+                        ? Once memory blocks are working, this will pull the prompt from the database, and the prompt will be
+                        ? automatically initialized with the administrator's handle from the env variables. I only did this so
+                        ? that if anybody runs the code themselves, they just have to edit the env variables, nothing else.
+                    */
+                    text: modelPrompt.replace(
+                        "{{ administrator }}",
+                        env.ADMIN_HANDLE,
+                    ),
+                },
             ],
         },
         {
@@ -85,7 +69,7 @@ async function generateAIResponse(parsedThread: string) {
 
         if (
             call &&
-            SUPPORTED_FUNCTION_CALLS.includes(
+            c.SUPPORTED_FUNCTION_CALLS.includes(
                 call.name as SupportedFunctionCall,
             )
         ) {
@@ -127,14 +111,20 @@ async function sendResponse(post: Post, text: string): Promise<void> {
     if (threadUtils.exceedsGraphemes(text)) {
         threadUtils.multipartResponse(text, post);
     } else {
-        post.reply({ text });
+        post.reply({
+            text,
+            tags: c.TAGS,
+        });
     }
 }
 
 export async function handler(post: Post): Promise<void> {
     try {
-        if (!await isAuthorizedUser(post.author.did)) {
-            await post.reply({ text: UNAUTHORIZED_MESSAGE });
+        if (!isAuthorizedUser(post.author.did)) {
+            await post.reply({
+                text: c.UNAUTHORIZED_MESSAGE,
+                tags: c.TAGS,
+            });
             return;
         }
 
@@ -162,6 +152,7 @@ export async function handler(post: Post): Promise<void> {
         await post.reply({
             text:
                 "aw, shucks, something went wrong! gonna take a quick nap and try again later. 😴",
+            tags: c.TAGS,
         });
     }
 }
