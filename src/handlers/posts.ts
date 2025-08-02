@@ -35,10 +35,9 @@ async function generateAIResponse(parsedThread: string) {
                         ? automatically initialized with the administrator's handle from the env variables. I only did this so
                         ? that if anybody runs the code themselves, they just have to edit the env variables, nothing else.
                     */
-                    text: modelPrompt.replace(
-                        "{{ administrator }}",
-                        env.ADMIN_HANDLE,
-                    ),
+                    text: modelPrompt
+                        .replace("{{ administrator }}", env.ADMIN_HANDLE)
+                        .replace("{{ handle }}", env.HANDLE),
                 },
             ],
         },
@@ -46,9 +45,9 @@ async function generateAIResponse(parsedThread: string) {
             role: "user" as const,
             parts: [
                 {
-                    text:
-                        `This is the thread. The top replies are older, the bottom replies are newer.    
-                    ${parsedThread}`,
+                    text: `below is the yaml for the current thread. your job is to respond to the last message.
+
+${parsedThread}`,
                 },
             ],
         },
