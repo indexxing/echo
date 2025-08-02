@@ -49,13 +49,6 @@ export async function handler(
     };
   }
 
-  if (!blockHandler.block.mutable) {
-    return {
-      success: false,
-      message: `Memory block '${args.block}' is not mutable.`,
-    };
-  }
-
   await blockHandler.createEntry(args.label, args.value);
 
   return {

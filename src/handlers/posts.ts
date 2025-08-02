@@ -89,7 +89,7 @@ ${parsedThread}`,
                     //@ts-ignore
                     functionResponse: {
                         name: call.name as string,
-                        response: { res: functionResponse },
+                        response: functionResponse,
                     },
                 }],
             });
