@@ -1,4 +1,8 @@
-import { isAuthorizedUser, logInteraction } from "../utils/interactions";
+import {
+  isAuthorizedUser,
+  logInteraction,
+  getRecentInteractions,
+} from "../utils/interactions";
 import * as threadUtils from "../utils/thread";
 import modelPrompt from "../model/prompt.txt";
 import { GoogleGenAI } from "@google/genai";
@@ -131,10 +135,13 @@ export async function handler(post: Post): Promise<void> {
             return;
         }
 
-        await logInteraction(post);
-
-        if (await threadUtils.isThreadMuted(post)) {
+        const isMuted = await threadUtils.isThreadMuted(post);
+        if (isMuted) {
             logger.warn("Thread is muted.");
+            await logInteraction(post, {
+                responseText: null,
+                wasMuted: true,
+            });
             return;
         }
 
@@ -151,11 +158,17 @@ export async function handler(post: Post): Promise<void> {
             await MemoryHandler.getBlocks(post.author.did),
         );
 
+        const recentInteractions = await getRecentInteractions(
+            post.author.did,
+            thread,
+        );
+
         const memory = yaml.dump({
             users_with_memory_blocks: {
                 [env.HANDLE]: botMemory.parseBlocks(),
                 [post.author.handle]: userMemory.parseBlocks(),
             },
+            recent_interactions: recentInteractions,
         });
 
         logger.log("Parsed memory blocks: ", memory);
@@ -167,6 +180,11 @@ export async function handler(post: Post): Promise<void> {
         if (responseText) {
             await sendResponse(post, responseText);
         }
+
+        await logInteraction(post, {
+            responseText: responseText ?? null,
+            wasMuted: false,
+        });
     } catch (error) {
         logger.error("Error in post handler:", error);
 
