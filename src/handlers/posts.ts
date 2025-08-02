@@ -18,7 +18,7 @@ const logger = consola.withTag("Post Handler");
 
 type SupportedFunctionCall = typeof c.SUPPORTED_FUNCTION_CALLS[number];
 
-async function generateAIResponse(memory: string, parsedThread: string) {
+async function generateAIResponse(post: Post, memory: string, parsedThread: string) {
     const genai = new GoogleGenAI({
         apiKey: env.GEMINI_API_KEY,
     });
@@ -173,7 +173,7 @@ export async function handler(post: Post): Promise<void> {
 
         logger.log("Parsed memory blocks: ", memory);
 
-        const inference = await generateAIResponse(memory, parsedThread);
+        const inference = await generateAIResponse(post, memory, parsedThread);
         logger.success("Generated text:", inference.text);
 
         const responseText = inference.text;
