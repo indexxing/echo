@@ -2,18 +2,19 @@ import { isAuthorizedUser, logInteraction } from "../utils/interactions";
 import * as threadUtils from "../utils/thread";
 import modelPrompt from "../model/prompt.txt";
 import { GoogleGenAI } from "@google/genai";
-import { interactions } from "../db/schema";
 import { type Post } from "@skyware/bot";
 import * as c from "../constants";
 import * as tools from "../tools";
 import consola from "consola";
 import { env } from "../env";
+import { MemoryHandler } from "../utils/memory";
+import * as yaml from "js-yaml";
 
 const logger = consola.withTag("Post Handler");
 
 type SupportedFunctionCall = typeof c.SUPPORTED_FUNCTION_CALLS[number];
 
-async function generateAIResponse(parsedThread: string) {
+async function generateAIResponse(memory: string, parsedThread: string) {
     const genai = new GoogleGenAI({
         apiKey: env.GEMINI_API_KEY,
     });
@@ -39,6 +40,9 @@ async function generateAIResponse(parsedThread: string) {
                         "{{ administrator }}",
                         env.ADMIN_HANDLE,
                     ),
+                },
+                {
+                    text: memory,
                 },
             ],
         },
@@ -138,7 +142,25 @@ export async function handler(post: Post): Promise<void> {
         const parsedThread = threadUtils.parseThread(thread);
         logger.success("Generated thread context:", parsedThread);
 
-        const inference = await generateAIResponse(parsedThread);
+        const botMemory = new MemoryHandler(
+            env.DID,
+            await MemoryHandler.getBlocks(env.DID),
+        );
+        const userMemory = new MemoryHandler(
+            post.author.did,
+            await MemoryHandler.getBlocks(post.author.did),
+        );
+
+        const memory = yaml.dump({
+            users_with_memory_blocks: {
+                [env.HANDLE]: botMemory.parseBlocks(),
+                [post.author.handle]: userMemory.parseBlocks(),
+            },
+        });
+
+        logger.log("Parsed memory blocks: ", memory);
+
+        const inference = await generateAIResponse(memory, parsedThread);
         logger.success("Generated text:", inference.text);
 
         const responseText = inference.text;
