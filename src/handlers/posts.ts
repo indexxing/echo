@@ -35,17 +35,9 @@ async function generateAIResponse(post: Post, memory: string, parsedThread: stri
             role: "model" as const,
             parts: [
                 {
-                    /*
-                        ? Once memory blocks are working, this will pull the prompt from the database, and the prompt will be
-                        ? automatically initialized with the administrator's handle from the env variables. I only did this so
-                        ? that if anybody runs the code themselves, they just have to edit the env variables, nothing else.
-                    */
-                    text: modelPrompt
+                    text: `${modelPrompt
                         .replace("{{ administrator }}", env.ADMIN_HANDLE)
-                        .replace("{{ handle }}", env.HANDLE),
-                },
-                {
-                    text: memory,
+                        .replace("{{ handle }}", env.HANDLE)}\n\n${memory}`,
                 },
             ],
         },
