@@ -1,4 +1,5 @@
 import type { FunctionCall, GenerateContentConfig } from "@google/genai";
+import * as add_to_memory from "./add_to_memory";
 import * as create_blog_post from "./create_blog_post";
 import * as create_post from "./create_post";
 import * as mute_thread from "./mute_thread";
@@ -8,6 +9,7 @@ const validation_mappings = {
   "create_post": create_post.validator,
   "create_blog_post": create_blog_post.validator,
   "mute_thread": mute_thread.validator,
+  "add_to_memory": add_to_memory.validator,
 } as const;
 
 export const declarations = [
@@ -16,26 +18,38 @@ export const declarations = [
       create_post.definition,
       create_blog_post.definition,
       mute_thread.definition,
+      add_to_memory.definition,
     ],
   },
 ];
 
 type ToolName = keyof typeof validation_mappings;
-export async function handler(call: FunctionCall & { name: ToolName }) {
+export async function handler(
+  call: FunctionCall & { name: ToolName },
+  did: string,
+) {
   const parsedArgs = validation_mappings[call.name].parse(call.args);
 
   switch (call.name) {
     case "create_post":
       return await create_post.handler(
         parsedArgs as z_infer<typeof create_post.validator>,
+        did,
       );
     case "create_blog_post":
       return await create_blog_post.handler(
         parsedArgs as z_infer<typeof create_blog_post.validator>,
+        did,
       );
     case "mute_thread":
       return await mute_thread.handler(
         parsedArgs as z_infer<typeof mute_thread.validator>,
+        did,
+      );
+    case "add_to_memory":
+      return await add_to_memory.handler(
+        parsedArgs as z_infer<typeof add_to_memory.validator>,
+        did,
       );
   }
 }

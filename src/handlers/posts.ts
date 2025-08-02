@@ -18,7 +18,7 @@ const logger = consola.withTag("Post Handler");
 
 type SupportedFunctionCall = typeof c.SUPPORTED_FUNCTION_CALLS[number];
 
-async function generateAIResponse(memory: string, parsedThread: string) {
+async function generateAIResponse(post: Post, memory: string, parsedThread: string) {
     const genai = new GoogleGenAI({
         apiKey: env.GEMINI_API_KEY,
     });
@@ -35,17 +35,9 @@ async function generateAIResponse(memory: string, parsedThread: string) {
             role: "model" as const,
             parts: [
                 {
-                    /*
-                        ? Once memory blocks are working, this will pull the prompt from the database, and the prompt will be
-                        ? automatically initialized with the administrator's handle from the env variables. I only did this so
-                        ? that if anybody runs the code themselves, they just have to edit the env variables, nothing else.
-                    */
-                    text: modelPrompt
+                    text: `${modelPrompt
                         .replace("{{ administrator }}", env.ADMIN_HANDLE)
-                        .replace("{{ handle }}", env.HANDLE),
-                },
-                {
-                    text: memory,
+                        .replace("{{ handle }}", env.HANDLE)}\n\n${memory}`,
                 },
             ],
         },
@@ -79,10 +71,12 @@ ${parsedThread}`,
                 call.name as SupportedFunctionCall,
             )
         ) {
-            logger.log("Function called invoked:", call.name);
+            logger.log("Function call invoked:", call.name);
+            logger.log("Function call arguments:", call.args);
 
             const functionResponse = await tools.handler(
                 call as typeof call & { name: SupportedFunctionCall },
+                post.author.did,
             );
 
             logger.log("Function response:", functionResponse);
@@ -96,7 +90,7 @@ ${parsedThread}`,
                     //@ts-ignore
                     functionResponse: {
                         name: call.name as string,
-                        response: { res: functionResponse },
+                        response: functionResponse,
                     },
                 }],
             });
@@ -172,7 +166,7 @@ export async function handler(post: Post): Promise<void> {
 
         logger.log("Parsed memory blocks: ", memory);
 
-        const inference = await generateAIResponse(memory, parsedThread);
+        const inference = await generateAIResponse(post, memory, parsedThread);
         logger.success("Generated text:", inference.text);
 
         const responseText = inference.text;

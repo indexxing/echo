@@ -28,7 +28,10 @@ export const validator = z.object({
   content: z.string(),
 });
 
-export async function handler(args: z.infer<typeof validator>) {
+export async function handler(
+  args: z.infer<typeof validator>,
+  did: string,
+) {
   //@ts-ignore: NSID is valid
   const entry = await bot.createRecord("com.whtwnd.blog.entry", {
     $type: "com.whtwnd.blog.entry",

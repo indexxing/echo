@@ -25,7 +25,10 @@ export const validator = z.object({
   uri: z.string(),
 });
 
-export async function handler(args: z.infer<typeof validator>) {
+export async function handler(
+  args: z.infer<typeof validator>,
+  did: string,
+) {
   //@ts-ignore: NSID is valid
   const record = await bot.createRecord("dev.indexx.echo.threadmute", {
     $type: "dev.indexx.echo.threadmute",
