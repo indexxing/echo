@@ -25,7 +25,10 @@ export const validator = z.object({
   text: z.string(),
 });
 
-export async function handler(args: z.infer<typeof validator>) {
+export async function handler(
+  args: z.infer<typeof validator>,
+  did: string,
+) {
   let uri: string | null = null;
   if (exceedsGraphemes(args.text)) {
     uri = await multipartResponse(args.text);

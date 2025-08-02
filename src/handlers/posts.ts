@@ -83,6 +83,7 @@ ${parsedThread}`,
 
             const functionResponse = await tools.handler(
                 call as typeof call & { name: SupportedFunctionCall },
+                post.author.did,
             );
 
             logger.log("Function response:", functionResponse);

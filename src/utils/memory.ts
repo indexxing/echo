@@ -94,6 +94,10 @@ export class MemoryHandler {
       })),
     }));
   }
+
+  public getBlockByName(name: string) {
+    return this.blocks.find((handler) => handler.block.name === name);
+  }
 }
 
 export class MemoryBlockHandler {
