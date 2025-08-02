@@ -5,6 +5,9 @@ export const interactions = sqliteTable("interactions", {
   id: integer().primaryKey({ autoIncrement: true }),
   uri: text().unique(),
   did: text(),
+  post: text(),
+  response: text(),
+  muted: integer({ mode: "boolean" }),
   created_at: integer({ mode: "timestamp" }).default(sql`CURRENT_TIMESTAMP`),
 });
 
