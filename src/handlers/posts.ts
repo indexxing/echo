@@ -71,7 +71,8 @@ ${parsedThread}`,
                 call.name as SupportedFunctionCall,
             )
         ) {
-            logger.log("Function called invoked:", call.name);
+            logger.log("Function call invoked:", call.name);
+            logger.log("Function call arguments:", call.args);
 
             const functionResponse = await tools.handler(
                 call as typeof call & { name: SupportedFunctionCall },
